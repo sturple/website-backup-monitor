@@ -20,6 +20,7 @@ pip install paramiko
 | ---------     |  ----------- |
 | --dry-run     |  shows actions, test connection, but does not rsycn or tar files|
 | --no-email    |  does not send email |
+| --no-archive  |  does not archive   |
 | --test-connection    | does similar to dry run but test connections |
 | --debug       | puts loggin into debug instead of info |
 

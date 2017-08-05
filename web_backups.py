@@ -33,15 +33,18 @@ def main() :
                 'ssh_options' : get_section_value(section, 'ssh_options',False),
                 'database'    : get_section_value(section,'database',[]).split(','),
             }
-
-            do_database(site_obj)
-            if no_connection == False:
-                logger.info('Successfull Connection to %s@%s'%(site_obj['ssh_user'],site_obj['ssh_host']))
-                for remote in site_obj['ssh_remote'] :
-                    do_rsync(path,site_obj,remote)
-                set_archive(section,path['backup_root']+site_obj['section']+'/',path['archive_root'])
-                if 'test-connection' in flags or 'dry-run' in flags:
-                    ssh_cmd(site_obj,['uname -a', 'readlink -f .'])
+            if os.path.isfile(site_obj['ssh_key']):
+                do_database(site_obj)
+                if no_connection == False:
+                    logger.info('Successfull Connection to %s@%s'%(site_obj['ssh_user'],site_obj['ssh_host']))
+                    for remote in site_obj['ssh_remote'] :
+                        do_rsync(path,site_obj,remote)
+                    if 'no-archive' not in flags:
+                        set_archive(section,path['backup_root']+site_obj['section']+'/',path['archive_root'])
+                    if 'test-connection' in flags or 'dry-run' in flags:
+                        ssh_cmd(site_obj,['uname -a', 'readlink -f .'])
+            else:
+                logger.error('Could Not find Key')
 
 
 def get_paths() :
@@ -97,11 +100,11 @@ def log_command(command):
 
 def set_archive(name,directory,archive_dir):
     d = date.today()
-    filename = 'archive-'+name+'-dofweek-'+ str(d.isoweekday()) +'-'+str(d.year)+'.tar.gz';
+    filename = 'archive-'+name+'-dofweek-'+ str(d.isoweekday()) +'.tar.gz';
     yesterday = d.isoweekday() - 1;
     if yesterday <= 0:
         yesterday = 7;
-    filename_yesterday = 'archive-'+name+'-dofweek-'+ str(yesterday) +'-'+str(d.year)+'.tar.gz';
+    filename_yesterday = 'archive-'+name+'-dofweek-'+ str(yesterday) +'.tar.gz';
     if not os.path.isdir(archive_dir):
         subprocess.Popen('mkdir -p '+ archive_dir, shell=True);
     #cmd = "tar cfz %s %s" % (archive_dir+filename,directory)
@@ -126,7 +129,7 @@ def set_archive(name,directory,archive_dir):
 
 
     if d.day == 1 or d.day == 15  :
-        filename = 'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day) +'-' + str(d.year)+'.tar.gz';
+        filename = 'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day)+'.tar.gz';
         cmd = "tar cfz %s %s" % (archive_dir+filename,directory)
         logger.debug(cmd);
         if 'dry-run' not in flags:
@@ -200,7 +203,7 @@ def do_rsync(path,site_obj,remote):
         if 'dry-run' not in flags:
             log_command(os.system(rsync_cmd))
     except:
-        logger.error('rsycn failed '+ rsync_remote);
+        logger.error('rsycn failed '+ rsync_cmd);
 
 def send_mail(data, msg):
     d = date.today()
@@ -250,15 +253,17 @@ logger.info("\r\n\r\n### Starting Backups Version: %s ####" %(version))
 
 if len(sys.argv) > 0 :
     if '--dry-run' in sys.argv :
-        flags.append('dry-run');
+        flags.append('dry-run')
         logger.warning('System Is in Dry Run Mode.  --dry-run flag option choosen')
+    if '--no-archive' :
+        flags.append('no-archive')
     if '--no-email' in sys.argv :
-        flags.append('no-email');
+        flags.append('no-email')
         logger.warning('System Email will Not be sent. --no-email flag option choosen')
     if '--test-connection' in sys.argv :
-        flags.append('test-connection');
+        flags.append('test-connection')
     if '--debug' in sys.argv :
-        flags.append('debug');
+        flags.append('debug')
 logger.debug(flags)
 
 
