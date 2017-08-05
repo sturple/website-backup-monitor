@@ -255,7 +255,7 @@ if len(sys.argv) > 0 :
     if '--dry-run' in sys.argv :
         flags.append('dry-run')
         logger.warning('System Is in Dry Run Mode.  --dry-run flag option choosen')
-    if '--no-archive' in sys.arg :
+    if '--no-archive' in sys.argv :
         flags.append('no-archive')
         logger.warning('System has turned off archiving.  --no-archive flag option choosen')
     if '--no-email' in sys.argv :
