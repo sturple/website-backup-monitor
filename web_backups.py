@@ -112,9 +112,12 @@ def set_archive(name,directory,archive_dir):
     if 'dry-run' not in flags:
         (os.system(cmd))
 
-    (os.system(cmd)) #here for testing only
+
     today_md5 = get_hashs(archive_dir+filename)
-    yesterday_md5 = get_hashs(archive_dir+filename_yesterday)
+    if os.path.isfile(archive_dir+filename_yesterday):
+        yesterday_md5 = get_hashs(archive_dir+filename_yesterday)
+    else:
+        yesterday_md5 = 0
     if today_md5 == yesterday_md5:
         logger.info('Checksums match '+today_md5)
     else:
