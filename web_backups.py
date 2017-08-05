@@ -11,8 +11,7 @@ import smtplib
 import sys
 import hashlib
 
-version = '0.0.2'
-
+version = subprocess.check_output(['git','rev-parse','--short','HEAD']).strip('\n')
 
 def main() :
     global no_connection
