@@ -201,7 +201,7 @@ def do_rsync(path,site_obj,remote):
     try:
         logger.debug('rsync '+ rsync_remote)
         if 'dry-run' not in flags:
-            log_command(os.system(rsync_cmd))
+            os.system(rsync_cmd)
     except:
         logger.error('rsycn failed '+ rsync_cmd);
 
