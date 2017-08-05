@@ -11,7 +11,7 @@ import smtplib
 import sys
 import hashlib
 
-version = '0.0.1'
+version = '0.0.2'
 
 
 def main() :
@@ -122,7 +122,7 @@ def set_archive(name,directory,archive_dir):
         logger.info('Checksums match '+today_md5)
     else:
         logger.warning('Checksums do not match, this can be caused by file updates, or database changes')
-        logger.warning({today : today_md5,yesterday : yesterday_md5})
+        logger.warning(('today',today_md5,'yesterday',yesterday_md5})
 
 
     if d.day == 1 or d.day == 15  :
