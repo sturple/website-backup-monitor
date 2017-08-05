@@ -38,6 +38,7 @@ def main() :
                     logger.info('Successfull Connection to %s@%s'%(site_obj['ssh_user'],site_obj['ssh_host']))
                     for remote in site_obj['ssh_remote'] :
                         do_rsync(path,site_obj,remote)
+
                     if 'no-archive' not in flags:
                         set_archive(section,path['backup_root']+site_obj['section']+'/',path['archive_root'])
                     if 'test-connection' in flags or 'dry-run' in flags:
@@ -254,8 +255,9 @@ if len(sys.argv) > 0 :
     if '--dry-run' in sys.argv :
         flags.append('dry-run')
         logger.warning('System Is in Dry Run Mode.  --dry-run flag option choosen')
-    if '--no-archive' :
+    if '--no-archive' in sys.arg :
         flags.append('no-archive')
+        logger.warning('System has turned off archiving.  --no-archive flag option choosen')
     if '--no-email' in sys.argv :
         flags.append('no-email')
         logger.warning('System Email will Not be sent. --no-email flag option choosen')
@@ -263,7 +265,7 @@ if len(sys.argv) > 0 :
         flags.append('test-connection')
     if '--debug' in sys.argv :
         flags.append('debug')
-logger.debug(flags)
+logger.info(flags)
 
 
 main()
