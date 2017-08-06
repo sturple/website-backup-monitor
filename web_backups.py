@@ -129,13 +129,13 @@ def set_archive(name,directory,archive_dir):
 
 
     if d.day == 1 or d.day == 15  :
-        monthly_dir = archive_dir+'month/';
+        monthly_dir = archive_dir+'month/'
         create_dir(monthly_dir)
         filename = 'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day) +'-' + str(d.year)+'.tar.gz
         cmd = "tar cfz %s %s" % (monthly_dir+filename,directory)
         logger.debug(cmd);
         if 'dry-run' not in flags:
-            log_command(os.system(cmd))
+            os.system(cmd)
 
 
 def do_database(site_obj) :
