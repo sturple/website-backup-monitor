@@ -129,8 +129,10 @@ def set_archive(name,directory,archive_dir):
 
 
     if d.day == 1 or d.day == 15  :
-        filename = 'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day)+'.tar.gz';
-        cmd = "tar cfz %s %s" % (archive_dir+filename,directory)
+        monthly_dir = archive_dir+'month/';
+        create_dir(monthly_dir)
+        filename = 'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day) +'-' + str(d.year)+'.tar.gz
+        cmd = "tar cfz %s %s" % (monthly_dir+filename,directory)
         logger.debug(cmd);
         if 'dry-run' not in flags:
             log_command(os.system(cmd))
