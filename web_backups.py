@@ -47,7 +47,7 @@ def main() :
                 logger.error('Could Not find Key')
     cmd = "mv -f %s/* %s" %(path['tmp_path'],path['archive_root']);
     logger.info(cmd)
-    os.system(cm)
+    os.system(cmd)
 
 
 def get_paths() :
@@ -121,18 +121,21 @@ def set_archive(name,directory,archive_dir, tmp_path):
         (os.system(cmd))
 
     try:
-        today_md5 = get_hashs(tmp_path+filename)
+        if os.path.isfile(tmp_path+filename):
+            today_md5 = get_hashs(tmp_path+filename)
+        else:
+            today_md5 = 0
         if os.path.isfile(archive_dir+filename_yesterday):
             yesterday_md5 = get_hashs(archive_dir+filename_yesterday)
         else:
-            yesterday_md5 = 0
+            yesterday_md5 = -1
         if today_md5 == yesterday_md5:
             logger.info('Checksums match '+today_md5)
         else:
             logger.warning('Checksums do not match, this can be caused by file updates, or database changes')
             logger.warning(('today',today_md5,'yesterday',yesterday_md5))
     except:
-        logger.warning('Error with Checksum code.')
+        logger.warning('Checksum code could not be created, usually because file does not exists.')
 
 
     if d.day == 1 or d.day == 15 or 'restore-point' in flags :
