@@ -45,7 +45,7 @@ def main() :
                         ssh_cmd(site_obj,['uname -a', 'readlink -f .'])
             else:
                 logger.error('Could Not find Key')
-    cmd = "mv -f %s/* %s" %(tmp_path,archive_root);
+    cmd = "mv -f %s/* %s" %(path['tmp_path'],archive_root);
     logger.info(cmd)
     os.system(cm)
 
