@@ -45,6 +45,9 @@ def main() :
                         ssh_cmd(site_obj,['uname -a', 'readlink -f .'])
             else:
                 logger.error('Could Not find Key')
+    cmd = "mv -f %s/* %s" %(tmp_path,archive_root);
+    logger.info(cmd)
+    os.system(cm)
 
 
 def get_paths() :
@@ -53,6 +56,7 @@ def get_paths() :
         'pem_path'      : get_section_value('Paths','pem_path'),
         'backup_root'   : get_section_value('Paths','backup_root'),
         'archive_root'  : get_section_value('Paths','archive_root'),
+        'tmp_path'      : get_section_value('Paths','tmp_path')
     }
     for key, path in p.iteritems():
         create_dir(path)
@@ -108,7 +112,7 @@ def set_archive(name,directory,archive_dir):
     if not os.path.isdir(archive_dir):
         subprocess.Popen('mkdir -p '+ archive_dir, shell=True);
     #cmd = "tar cfz %s %s" % (archive_dir+filename,directory)
-    cmd ="tar -c %s | gzip -n >%s" % (directory,archive_dir+filename)
+    cmd ="tar -c %s | gzip -n >%s" % (directory,tmp_path+filename)
 
 
     logger.debug(cmd);
@@ -116,7 +120,7 @@ def set_archive(name,directory,archive_dir):
         (os.system(cmd))
 
 
-    today_md5 = get_hashs(archive_dir+filename)
+    today_md5 = get_hashs(tmp_path+filename)
     if os.path.isfile(archive_dir+filename_yesterday):
         yesterday_md5 = get_hashs(archive_dir+filename_yesterday)
     else:
@@ -129,7 +133,7 @@ def set_archive(name,directory,archive_dir):
 
 
     if d.day == 1 or d.day == 15  :
-        monthly_dir = archive_dir+'month/'
+        monthly_dir = tmp_path+'month/'
         create_dir(monthly_dir)
         filename = 'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day) +'-' + str(d.year)+'.tar.gz'
         cmd = "tar cfz %s %s" % (monthly_dir+filename,directory)
