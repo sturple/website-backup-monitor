@@ -45,7 +45,7 @@ def main() :
                         ssh_cmd(site_obj,['uname -a', 'readlink -f .'])
             else:
                 logger.error('Could Not find Key')
-    cmd = "mv -f %s/* %s" %(path['tmp_path'],archive_root);
+    cmd = "mv -f %s/* %s" %(path['tmp_path'],path['archive_root']);
     logger.info(cmd)
     os.system(cm)
 
@@ -263,6 +263,7 @@ logger.info("\r\n\r\n### Starting Backups Version: %s ####" %(version))
 if len(sys.argv) > 0 :
     if '--dry-run' in sys.argv :
         flags.append('dry-run')
+        flags.append('--no-archive')
         logger.warning('System Is in Dry Run Mode.  --dry-run flag option choosen')
     if '--no-archive' in sys.argv :
         flags.append('no-archive')
