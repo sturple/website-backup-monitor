@@ -40,7 +40,7 @@ def main() :
                         do_rsync(path,site_obj,remote)
 
                     if 'no-archive' not in flags:
-                        set_archive(section,path['backup_root']+site_obj['section']+'/',path['archive_root'])
+                        set_archive(section,path['backup_root']+site_obj['section']+'/',path['archive_root'],path['tmp_path'])
                     if 'test-connection' in flags or 'dry-run' in flags:
                         ssh_cmd(site_obj,['uname -a', 'readlink -f .'])
             else:
@@ -102,8 +102,9 @@ def log_command(command):
         logger.debug('stderr not iterable')
     return stdout
 
-def set_archive(name,directory,archive_dir):
+def set_archive(name,directory,archive_dir, tmp_path):
     d = date.today()
+
     filename = 'archive-'+name+'-dofweek-'+ str(d.isoweekday()) +'.tar.gz';
     yesterday = d.isoweekday() - 1;
     if yesterday <= 0:
