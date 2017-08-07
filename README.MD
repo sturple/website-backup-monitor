@@ -22,6 +22,7 @@ pip install paramiko
 | --no-email    |  does not send email |
 | --no-archive  |  does not archive   |
 | --test-connection    | does similar to dry run but test connections |
+| --set-restore-point | creates a tar with month day and year for permanent restore point |
 | --debug       | puts loggin into debug instead of info |
 
 

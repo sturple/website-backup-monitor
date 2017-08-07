@@ -132,7 +132,7 @@ def set_archive(name,directory,archive_dir):
         logger.warning(('today',today_md5,'yesterday',yesterday_md5))
 
 
-    if d.day == 1 or d.day == 15  :
+    if d.day == 1 or d.day == 15 or 'restore-point' in flags :
         monthly_dir = tmp_path+'month/'
         create_dir(monthly_dir)
         filename = 'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day) +'-' + str(d.year)+'.tar.gz'
@@ -269,13 +269,15 @@ if len(sys.argv) > 0 :
         logger.warning('System Email will Not be sent. --no-email flag option choosen')
     if '--test-connection' in sys.argv :
         flags.append('test-connection')
+    if '--set-restore-point' in sys.argv :
+        flags.append('resort-point')
     if '--debug' in sys.argv :
         flags.append('debug')
 logger.info(flags)
 
 
 main()
-
+logger.info('\r\nFinished backups last step sending email if requested.')
 log_capt=log_capture_string.getvalue()
 log_capture_string.close()
 if 'no-email' not in flags:
