@@ -223,6 +223,8 @@ def send_mail(data, msg):
     smtpserver.ehlo
     smtpserver.login(data['user'],data['password'])
     header = 'To:' + data['to'] + '\n' + 'From: ' + data['user'] + '\n' + 'Subject:FGMS Backup Results For: '+d.isoformat()+'\n'
+    if data['cc']:
+        header += 'Cc:'+data['cc']+'\n'       
 
     smtpserver.sendmail(data['user'], data['to'],"%s \n\r %s %s" %(header, msg,log_capture_string.getvalue()))
     smtpserver.close()
@@ -289,6 +291,7 @@ if __name__ == '__main__' :
     if 'no-email' not in flags:
         send_mail({
             'to' : get_section_value(config,'mail', 'to','webmaster@fifthgeardev.com'),
+            'cc' : get_section_value(config,'mail','cc',False),
             'user' : get_section_value(config,'mail', 'user',False),
             'password' : get_section_value(config,'mail', 'password',False),
             'server' : get_section_value(config,'mail', 'server',False)
