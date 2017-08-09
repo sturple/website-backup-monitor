@@ -1,2 +1,5 @@
 config/web_backups.cfg
 config/keyfile
+test-directory/
+tests/
+web_backups.pyc
