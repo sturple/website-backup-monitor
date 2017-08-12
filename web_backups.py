@@ -16,6 +16,7 @@ except ImportError:
     from io import StringIO
 
 version = subprocess.check_output(['git','rev-parse','--short','HEAD']).strip('\n')
+ipaddress = subprocess.check_output(['dig','+short','myip.opendns.com','@resolver1.opendns.com']).strip('\n')
 
 
 
@@ -28,9 +29,7 @@ def main() :
         if site_obj['active'] and 'active' in site_obj:
             site_obj['ssh_key'] = paths['pem_path'] +site_obj['ssh_key']
             connection=True
-            logger.info('')
-            logger.info("**********************Section: "+ site_obj['section']+ " **************************" )
-
+            logger.info("***** Section: "+ site_obj['section'])
             if os.path.isfile(site_obj['ssh_key']):
                 if 'dry-run' in flags:
                     ssh_cmd(site_obj,['uname -a', 'readlink -f .'])
@@ -224,7 +223,7 @@ def send_mail(data, msg):
     smtpserver.login(data['user'],data['password'])
     header = 'To:' + data['to'] + '\n' + 'From: ' + data['user'] + '\n' + 'Subject:FGMS Backup Results For: '+d.isoformat()+'\n'
     if data['cc']:
-        header += 'Cc:'+data['cc']+'\n'       
+        header += 'Cc:'+data['cc']+'\n'
 
     smtpserver.sendmail(data['user'], data['to'],"%s \n\r %s %s" %(header, msg,log_capture_string.getvalue()))
     smtpserver.close()
@@ -258,7 +257,7 @@ if __name__ == '__main__' :
         logging.basicConfig(level=logging.INFO,format=FORMAT)
 
 
-    logger.info("### Starting Backups Version: %s ####" %(version))
+    logger.info("---> Starting Backups Version: %s @%s" %(version, ipaddress))
     config, flags, paths = init('config/web_backups.cfg', sys.argv)
 
     paramiko.util.log_to_file(paths['log_path']+'ssh.log')
@@ -286,7 +285,7 @@ if __name__ == '__main__' :
     connection = True
 
     main()
-    logger.info('*** Finished backups last step sending email if requested.')
+    logger.info('---> Finished backups last step sending email if requested.')
 
     if 'no-email' not in flags:
         send_mail({
