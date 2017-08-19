@@ -256,8 +256,6 @@ if __name__ == '__main__' :
     else:
         logging.basicConfig(level=logging.INFO,format=FORMAT)
 
-
-    logger.info("---> Starting Backups Version: %s @%s" %(version, ipaddress))
     config, flags, paths = init('config/web_backups.cfg', sys.argv)
 
     paramiko.util.log_to_file(paths['log_path']+'ssh.log')
@@ -283,7 +281,7 @@ if __name__ == '__main__' :
     logger.info(flags)
 
     connection = True
-
+    logger.info("---> Starting Backups Version: %s @%s" %(version, ipaddress))
     main()
     logger.info('---> Finished backups last step sending email if requested.')
 
