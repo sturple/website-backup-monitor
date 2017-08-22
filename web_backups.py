@@ -57,15 +57,17 @@ def main() :
                     if 'dry-run' not in flags:
                         for cmd in cmds:
                             os.system(cmd)
+                            
+                # if both paths are the same no need to move.
+                if (paths['tmp_path'] != paths['archive_root']):
+                    cmd = "mv -f %s* %s" %(paths['tmp_path'],paths['archive_root']);
+                    logger.info(cmd)
+                    if 'dry-run' not in flags:
+                        os.system(cmd)
 
             else:
                 logger.error('Could Not find Key')
-    # if both paths are the same no need to move.
-    if (paths['tmp_path'] != paths['archive_root']):
-        cmd = "mv -f %s* %s" %(paths['tmp_path'],paths['archive_root']);
-        logger.info(cmd)
-        if 'dry-run' not in flags:
-            os.system(cmd)
+
 
 # gets site object which is cleaned data.
 def get_site_object(config,section):
