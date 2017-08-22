@@ -51,19 +51,22 @@ def main() :
                         except:
                             logger.error('rsycn failed '+ rsync_cmd);
 
-                if 'no-archive' not in flags:
-                    cmds = set_archive(site_obj['section'],paths, 'restore-point' in flags)
-                    logger.debug(cmds);
-                    if 'dry-run' not in flags:
-                        for cmd in cmds:
-                            os.system(cmd)
-                            
+                        if 'no-archive' not in flags:
+                            cmds = set_archive(remote,site_obj,paths, 'restore-point' in flags)
+                            logger.debug(cmds);
+                            if 'dry-run' not in flags:
+                                for cmd in cmds:
+                                    os.system(cmd)
+
                 # if both paths are the same no need to move.
                 if (paths['tmp_path'] != paths['archive_root']):
-                    cmd = "mv -f %s* %s" %(paths['tmp_path'],paths['archive_root']);
+                    cmd = "cp -ru %s* %s" %(paths['tmp_path'],paths['archive_root']);
+                    cmd_cleanup = "rm -rf %s*" %(paths['tmp_path']);
+                    logger.info('cleanup '+cmd_cleanup);
                     logger.info(cmd)
                     if 'dry-run' not in flags:
                         os.system(cmd)
+                        os.system(cmd_cleanup)
 
             else:
                 logger.error('Could Not find Key')
@@ -130,25 +133,25 @@ def do_command(interface, command,echo=True):
 
 
 
-def set_archive(name,paths, restore_point_flag):
+def set_archive(remote, site_obj, paths, restore_point_flag):
+    name = site_obj['section'];
+    remote = remote.replace('/','-',10);
+    remote = name+'/'+remote;
     directory = paths['backup_root']+name+'/'
     archive_dir = paths['archive_root']
     tmp_path = paths['tmp_path']
 
     d = date.today()
     cmds = []
-    filename = 'archive-'+name+'-dofweek-'+ str(d.isoweekday()) +'.tar.gz';
-    yesterday = d.isoweekday() - 1;
-    if yesterday <= 0:
-        yesterday = 7;
-    filename_yesterday = 'archive-'+name+'-dofweek-'+ str(yesterday) +'.tar.gz';
+    filename = remote+'/'+'archive-'+name+'-dofweek-'+ str(d.isoweekday()) +'.tar.gz';
+    create_dir(tmp_path+remote);
     cmds.append("tar -c %s | gzip -n >%s" % (directory,tmp_path+filename))
 
 
     if d.day == 1 or d.day == 15 or restore_point_flag :
         monthly_dir = tmp_path+'month/'
         create_dir(monthly_dir)
-        filename = 'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day) +'-' + str(d.year)+'.tar.gz'
+        filename = remote+'/'+'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day) +'-' + str(d.year)+'.tar.gz'
         cmds.append("tar cfz %s %s" % (monthly_dir+filename,archive_dir))
     return cmds
 
