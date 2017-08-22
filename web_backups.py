@@ -62,11 +62,12 @@ def main() :
                 if (paths['tmp_path'] != paths['archive_root']):
                     cmd = "cp -ru %s* %s" %(paths['tmp_path'],paths['archive_root']);
                     cmd_cleanup = "rm -rf %s*" %(paths['tmp_path']);
-                    logger.info('cleanup '+cmd_cleanup);
                     logger.info(cmd)
                     if 'dry-run' not in flags:
                         os.system(cmd)
                         os.system(cmd_cleanup)
+                    logger.info('cleanup '+cmd_cleanup);
+
 
             else:
                 logger.error('Could Not find Key')
@@ -137,7 +138,7 @@ def set_archive(remote, site_obj, paths, restore_point_flag):
     name = site_obj['section'];
     remote = remote.replace('/','-',10);
     remote = name+'/'+remote;
-    directory = paths['backup_root']+name+'/'
+    directory = paths['backup_root']+remote
     archive_dir = paths['archive_root']
     tmp_path = paths['tmp_path']
 
