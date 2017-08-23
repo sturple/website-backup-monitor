@@ -60,17 +60,20 @@ def main() :
 
                 # if both paths are the same no need to move.
                 if (paths['tmp_path'] != paths['archive_root']):
-                    cmd = "cp -ru %s* %s" %(paths['tmp_path'],paths['archive_root']);
-                    cmd_cleanup = "rm -rf %s*" %(paths['tmp_path']);
+                    cmd = "rsync -arz  %s %s" %(paths['tmp_path'],paths['archive_root']);
                     logger.info(cmd)
                     if 'dry-run' not in flags:
                         os.system(cmd)
-                        os.system(cmd_cleanup)
-                    logger.info('cleanup '+cmd_cleanup);
+
+
 
 
             else:
                 logger.error('Could Not find Key')
+
+    cmd_cleanup = "rm -rf %s*" %(paths['tmp_path']);
+    logger.info('cleanup '+cmd_cleanup);
+    os.system(cmd_cleanup)
 
 
 # gets site object which is cleaned data.
@@ -141,6 +144,7 @@ def set_archive(site_obj, paths, restore_point_flag):
     tmp_path = paths['tmp_path']+name+'/'
     subfolders = os.listdir(directory)
 
+
     d = date.today()
     cmds = []
     for folder in subfolders:
@@ -149,7 +153,6 @@ def set_archive(site_obj, paths, restore_point_flag):
         filename = filename+'.tar.gz'
         create_dir(tmp_path);
         cmds.append("tar -c %s | gzip -n > %s" % (directory+folder+'/',tmp_path+filename))
-
 
     if d.day == 1 or d.day == 15 or restore_point_flag :
         monthly_dir = tmp_path+'month/'
@@ -219,7 +222,7 @@ def do_rsync(site_obj,paths,remote):
     rsync_option = site_obj['ssh_key']
     if site_obj['ssh_options'] == 'ssh-dss':
         rsync_option = rsync_option + ' -oHostKeyAlgorithms=+ssh-dss'
-    rsync_cmd = "rsync --delete-after  -arz -e 'ssh -i %s' %s %s " % (rsync_option, rsync_remote,rsync_local)
+    rsync_cmd = "rsync --delete  -arz -e 'ssh -i %s' %s %s " % (rsync_option, rsync_remote,rsync_local)
     return rsync_cmd;
 
 
