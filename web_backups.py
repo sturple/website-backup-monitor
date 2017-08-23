@@ -156,7 +156,7 @@ def send_to_pcloud(site_obj, tmp_path):
         if (value.get('isfolder')):
             current_folder[value.get('name','')] = value.get('folderid',0)
 
-
+    print(current_folder)
 
     for folder in subfolders:
         if folder not in current_folder:
@@ -171,6 +171,7 @@ def send_to_pcloud(site_obj, tmp_path):
                 pcfilesuploads.append(tmp_path+folder+'/'+n)
             for f in pcfilesuploads:
                 results = pc.uploadfile(files=[f],folderid=current_folder[folder])
+                print(results)
 
 
 
