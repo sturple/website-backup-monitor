@@ -51,12 +51,12 @@ def main() :
                         except:
                             logger.error('rsycn failed '+ rsync_cmd);
 
-                        if 'no-archive' not in flags:
-                            cmds = set_archive(remote,site_obj,paths, 'restore-point' in flags)
-                            logger.debug(cmds);
-                            if 'dry-run' not in flags:
-                                for cmd in cmds:
-                                    os.system(cmd)
+                    if 'no-archive' not in flags:
+                        cmds = set_archive(site_obj,paths, 'restore-point' in flags)
+                        logger.debug(cmds);
+                        if 'dry-run' not in flags:
+                            for cmd in cmds:
+                                os.system(cmd)
 
                 # if both paths are the same no need to move.
                 if (paths['tmp_path'] != paths['archive_root']):
@@ -134,19 +134,19 @@ def do_command(interface, command,echo=True):
 
 
 
-def set_archive(remote, site_obj, paths, restore_point_flag):
+def set_archive(site_obj, paths, restore_point_flag):
     name = site_obj['section'];
-    remote = remote.replace('/','-',10);
-    remote = name+'/'+remote;
-    directory = paths['backup_root']+remote
+    directory = paths['backup_root']+name+'/'
     archive_dir = paths['archive_root']
-    tmp_path = paths['tmp_path']
+    tmp_path = paths['tmp_path']+name+'/'
+    subfolders = os.listdir(directory)
 
     d = date.today()
     cmds = []
-    filename = remote+'/'+'archive-'+name+'-dofweek-'+ str(d.isoweekday()) +'.tar.gz';
-    create_dir(tmp_path+remote);
-    cmds.append("tar -c %s | gzip -n >%s" % (directory,tmp_path+filename))
+    for folder in subfolders:
+        filename = 'archive-'+name+'-'+folder+'-dofweek-'+ str(d.isoweekday())+'.tar.gz';
+        create_dir(tmp_path);
+        cmds.append("tar -c %s | gzip -n > %s" % (directory+folder+'/',tmp_path+filename))
 
 
     if d.day == 1 or d.day == 15 or restore_point_flag :
@@ -154,6 +154,7 @@ def set_archive(remote, site_obj, paths, restore_point_flag):
         create_dir(monthly_dir)
         filename = remote+'/'+'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day) +'-' + str(d.year)+'.tar.gz'
         cmds.append("tar cfz %s %s" % (monthly_dir+filename,archive_dir))
+    print cmds
     return cmds
 
 def get_database_command(config,site_obj) :
