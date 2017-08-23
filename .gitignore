@@ -3,3 +3,4 @@ config/keyfile
 test-directory/
 tests/
 web_backups.pyc
+py3env

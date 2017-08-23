@@ -1,4 +1,4 @@
-import ConfigParser
+import configparser
 import io
 import os
 import subprocess
@@ -6,17 +6,19 @@ import logging
 import paramiko
 import time
 from datetime import date
-from StringIO import StringIO as StringBuffer
+from io import StringIO as StringBuffer
 import smtplib
 import sys
 import hashlib
+import json
+from pcloud import PyCloud
 try:
     from cStringIO import StringIO      # Python 2
 except ImportError:
     from io import StringIO
 
-version = subprocess.check_output(['git','rev-parse','--short','HEAD']).strip('\n')
-ipaddress = subprocess.check_output(['dig','+short','myip.opendns.com','@resolver1.opendns.com']).strip('\n')
+version = subprocess.check_output(['git','rev-parse','--short','HEAD']).decode().strip('\n')
+ipaddress = subprocess.check_output(['dig','+short','myip.opendns.com','@resolver1.opendns.com']).decode().strip('\n')
 
 
 
@@ -60,10 +62,13 @@ def main() :
 
                 # if both paths are the same no need to move.
                 if (paths['tmp_path'] != paths['archive_root']):
-                    cmd = "rsync -arz  %s %s" %(paths['tmp_path'],paths['archive_root']);
-                    logger.info(cmd)
+                    #cmd = "rsync -arz  %s %s" %(paths['tmp_path'],paths['archive_root']);
+                    send_to_pcloud(site_obj, paths['tmp_path'])
+                    cmd_cleanup = "rm -rf %s*" %(paths['tmp_path']);
                     if 'dry-run' not in flags:
-                        os.system(cmd)
+                        #os.system(cmd)
+                        os.system(cmd_cleanup)
+                    logger.info('cleanup '+cmd_cleanup);
 
 
 
@@ -71,9 +76,10 @@ def main() :
             else:
                 logger.error('Could Not find Key')
 
-    cmd_cleanup = "rm -rf %s*" %(paths['tmp_path']);
-    logger.info('cleanup '+cmd_cleanup);
-    os.system(cmd_cleanup)
+
+
+
+
 
 
 # gets site object which is cleaned data.
@@ -101,7 +107,7 @@ def get_paths(config) :
         'archive_root'  : get_section_value(config,'Paths','archive_root'),
         'tmp_path'      : get_section_value(config,'Paths','tmp_path', get_section_value(config,'Paths','archive_root') )
     }
-    for key, path in p.iteritems():
+    for key, path in p.items():
         create_dir(path)
     return p;
 
@@ -134,6 +140,37 @@ def do_command(interface, command,echo=True):
     if echo :
         for line in stdout:
             logger.debug(line.strip('\n'))
+
+def send_to_pcloud(site_obj, tmp_path):
+
+    user = get_section_value(config,'pcloud', 'user','')
+    pss = get_section_value(config,'pcloud', 'pass','')
+    folderid = get_section_value(config,'pcloud', 'folderid',0)
+    pc = PyCloud(user,pss)
+
+    subfolders = os.listdir(tmp_path)
+    folderlist = pc.listfolder(folderid=folderid)
+    #print(folderlist['metadata']['contents'])
+    current_folder = {};
+    for value in folderlist['metadata']['contents']:
+        if (value.get('isfolder')):
+            current_folder[value.get('name','')] = value.get('folderid',0)
+
+
+
+    for folder in subfolders:
+        if folder not in current_folder:
+            # creates new folder and its it to current folder list
+            results = pc.createfolder(folderid=folderid,name=folder)
+            if results['result'] == 0:
+                current_folder[folder] =  results['metadata']['folderid']
+
+        pcfilesuploads = []
+        for dirpath, dirnames, filenames in os.walk(tmp_path+folder+'/'):
+            for n in filenames:
+                pcfilesuploads.append(tmp_path+folder+'/'+n)
+            for f in pcfilesuploads:
+                results = pc.uploadfile(files=[f],folderid=current_folder[folder])
 
 
 
@@ -193,9 +230,6 @@ def ssh_cmd(site_obj, cmds) :
         for cmd in cmds:
             do_command(ssh,cmd, ('test-connection' in flags or 'dry-run' in flags))
         ssh.close()
-    except paramiko.BadHostKeyException as (hostname, got_key,expected_key):
-        logger.error('SSH Failed Badhostkey ')
-        connection = False
     except paramiko.AuthenticationException:
         logger.error('SSH Failed Authentication Error')
         connection = False
@@ -242,7 +276,7 @@ def send_mail(data, msg):
 
 def init(config_file, params):
     flags = [];
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read(config_file)
     paths = get_paths(config)
     if len(params) > 0 :
