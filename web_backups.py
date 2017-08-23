@@ -144,7 +144,9 @@ def set_archive(site_obj, paths, restore_point_flag):
     d = date.today()
     cmds = []
     for folder in subfolders:
-        filename = 'archive-'+name+'-'+folder+'-dofweek-'+ str(d.isoweekday())+'.tar.gz';
+        filename = 'archive-'+name+'-'+folder+'-dofweek-'+ str(d.isoweekday())
+        filename = filename.replace('.','-',10);
+        filename = filename+'.tar.gz'
         create_dir(tmp_path);
         cmds.append("tar -c %s | gzip -n > %s" % (directory+folder+'/',tmp_path+filename))
 
@@ -154,7 +156,7 @@ def set_archive(site_obj, paths, restore_point_flag):
         create_dir(monthly_dir)
         filename = remote+'/'+'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day) +'-' + str(d.year)+'.tar.gz'
         cmds.append("tar cfz %s %s" % (monthly_dir+filename,archive_dir))
-    print cmds
+
     return cmds
 
 def get_database_command(config,site_obj) :
