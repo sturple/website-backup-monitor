@@ -25,6 +25,11 @@ ipaddress = subprocess.check_output(['dig','+short','myip.opendns.com','@resolve
 
 def main() :
     global connection
+    user = get_section_value(config,'pcloud', 'user','')
+    pss = get_section_value(config,'pcloud', 'pass','')
+    folderid = get_section_value(config,'pcloud', 'folderid',0)
+    pc = PyCloud(user,pss)
+
     for section in config.sections():
         site_obj = get_site_object(config,section)
         logger.debug(site_obj)
@@ -63,7 +68,7 @@ def main() :
                 # if both paths are the same no need to move.
                 if (paths['tmp_path'] != paths['archive_root']):
                     #cmd = "rsync -arz  %s %s" %(paths['tmp_path'],paths['archive_root']);
-                    send_to_pcloud(site_obj, paths['tmp_path'])
+                    send_to_pcloud(site_obj, paths['tmp_path'],pc,folderid)
                     cmd_cleanup = "rm -rf %s*" %(paths['tmp_path']);
                     if 'dry-run' not in flags:
                         #os.system(cmd)
@@ -141,13 +146,7 @@ def do_command(interface, command,echo=True):
         for line in stdout:
             logger.debug(line.strip('\n'))
 
-def send_to_pcloud(site_obj, tmp_path):
-
-    user = get_section_value(config,'pcloud', 'user','')
-    pss = get_section_value(config,'pcloud', 'pass','')
-    folderid = get_section_value(config,'pcloud', 'folderid',0)
-    pc = PyCloud(user,pss)
-
+def send_to_pcloud(site_obj, tmp_path, pc, folderid):
     subfolders = os.listdir(tmp_path)
     folderlist = pc.listfolder(folderid=folderid)
     #print(folderlist['metadata']['contents'])
@@ -171,7 +170,8 @@ def send_to_pcloud(site_obj, tmp_path):
                 pcfilesuploads.append(tmp_path+folder+'/'+n)
             for f in pcfilesuploads:
                 results = pc.uploadfile(files=[f],folderid=current_folder[folder])
-                print(results)
+                print(results['result'])
+                print(results['metadata'])
 
 
 
