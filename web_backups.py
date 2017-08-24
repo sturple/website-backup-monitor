@@ -155,8 +155,6 @@ def send_to_pcloud(site_obj, tmp_path, pc, folderid):
         if (value.get('isfolder')):
             current_folder[value.get('name','')] = value.get('folderid',0)
 
-    print(current_folder)
-
     for folder in subfolders:
         if folder not in current_folder:
             # creates new folder and its it to current folder list
@@ -180,17 +178,20 @@ def set_archive(site_obj, paths, restore_point_flag):
     directory = paths['backup_root']+name+'/'
     archive_dir = paths['archive_root']
     tmp_path = paths['tmp_path']+name+'/'
-    subfolders = os.listdir(directory)
+    #subfolders = os.listdir(directory)
 
 
     d = date.today()
     cmds = []
-    for folder in subfolders:
-        filename = 'archive-'+name+'-'+folder+'-dofweek-'+ str(d.isoweekday())
-        filename = filename.replace('.','-',10);
-        filename = filename+'.tar.gz'
-        create_dir(tmp_path);
-        cmds.append("tar -c %s | gzip -n > %s" % (directory+folder+'/',tmp_path+filename))
+    filename = 'archive-'+name+'-dofweek-'+ str(d.isoweekday())
+    create_dir(tmp_path);
+    cmds.append("tar cfz - %s | split --bytes=100MB - %s.tar.gz."% (directory,tmp_path+filename))
+    #for folder in subfolders:
+    #    filename = 'archive-'+name+'-'+folder+'-dofweek-'+ str(d.isoweekday())
+    #    filename = filename.replace('.','-',10);
+    #    filename = filename+'.tar.gz'
+    #    create_dir(tmp_path);
+    #    cmds.append("tar -c %s | gzip -n > %s" % (directory+folder+'/',tmp_path+filename))
 
     if d.day == 1 or d.day == 15 or restore_point_flag :
         monthly_dir = tmp_path+'month/'
