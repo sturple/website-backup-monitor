@@ -32,8 +32,15 @@ def main() :
 
     for section in config.sections():
         site_obj = get_site_object(config,section)
-        logger.debug(site_obj)
+
+
         if site_obj['active'] and 'active' in site_obj:
+            # if both paths are the same no need to move.
+            if (paths['tmp_path'] != paths['archive_root']):
+                if 'dry-run' not in flags:
+                    cmd_cleanup = "rm -rf %s*" %(paths['tmp_path']);
+                    os.system(cmd_cleanup)
+                    logger.info('cleanup '+cmd_cleanup);            
             site_obj['ssh_key'] = paths['pem_path'] +site_obj['ssh_key']
             connection=True
             logger.info("***** Section: "+ site_obj['section'])
@@ -47,6 +54,7 @@ def main() :
                 if 'dry-run' not in flags:
                     ssh_cmd(site_obj,cmds)
                 # gets set to true each time ssh_cmd is iniated and doesn't have error do all rsync
+
                 if connection == True:
                     logger.info('Successfull Connection to %s@%s'%(site_obj['ssh_user'],site_obj['ssh_host']))
                     for remote in site_obj['ssh_remote'] :
@@ -64,18 +72,8 @@ def main() :
                         if 'dry-run' not in flags:
                             for cmd in cmds:
                                 os.system(cmd)
-
-                # if both paths are the same no need to move.
-                if (paths['tmp_path'] != paths['archive_root']):
-                    #cmd = "rsync -arz  %s %s" %(paths['tmp_path'],paths['archive_root']);
-                    send_to_pcloud(site_obj, paths['tmp_path'],pc,folderid)
-                    cmd_cleanup = "rm -rf %s*" %(paths['tmp_path']);
-                    if 'dry-run' not in flags:
-                        #os.system(cmd)
-                        os.system(cmd_cleanup)
-                    logger.info('cleanup '+cmd_cleanup);
-
-
+                    if (paths['tmp_path'] != paths['archive_root']) and 'no-archive' not in flags:
+                        send_to_pcloud(site_obj, paths['tmp_path'],pc,folderid)
 
 
             else:
