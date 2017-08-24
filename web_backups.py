@@ -40,7 +40,7 @@ def main() :
                 if 'dry-run' not in flags:
                     cmd_cleanup = "rm -rf %s*" %(paths['tmp_path']);
                     os.system(cmd_cleanup)
-                    logger.info('cleanup '+cmd_cleanup);            
+                    logger.info('cleanup '+cmd_cleanup);
             site_obj['ssh_key'] = paths['pem_path'] +site_obj['ssh_key']
             connection=True
             logger.info("***** Section: "+ site_obj['section'])
@@ -166,9 +166,6 @@ def send_to_pcloud(site_obj, tmp_path, pc, folderid):
                 pcfilesuploads.append(tmp_path+folder+'/'+n)
             for f in pcfilesuploads:
                 results = pc.uploadfile(files=[f],folderid=current_folder[folder])
-                print(results['result'])
-                print(results['metadata'])
-
 
 
 def set_archive(site_obj, paths, restore_point_flag):
@@ -181,9 +178,9 @@ def set_archive(site_obj, paths, restore_point_flag):
 
     d = date.today()
     cmds = []
-    filename = 'archive-'+name+'-dofweek-'+ str(d.isoweekday())
-    create_dir(tmp_path);
-    cmds.append("tar cfz - %s | split --bytes=100MB - %s.tar.gz."% (directory,tmp_path+filename))
+    filename = 'archive-'+name+'-dofweek-'+ str(d.isoweekday())       
+    create_dir(tmp_path)
+    cmds.append("tar cfz - %s | split --bytes=260MB - %s.tar.gz."% (directory,tmp_path+filename))
     #for folder in subfolders:
     #    filename = 'archive-'+name+'-'+folder+'-dofweek-'+ str(d.isoweekday())
     #    filename = filename.replace('.','-',10);
