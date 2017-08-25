@@ -178,9 +178,9 @@ def set_archive(site_obj, paths, restore_point_flag):
 
     d = date.today()
     cmds = []
-    filename = 'archive-'+name+'-dofweek-'+ str(d.isoweekday())       
+    filename = 'archive-'+name+'-dofweek-'+ str(d.isoweekday())
     create_dir(tmp_path)
-    cmds.append("tar cfz - %s | split --bytes=260MB - %s.tar.gz."% (directory,tmp_path+filename))
+    cmds.append("tar cfz - %s | split --bytes=510MB - %s.tar.gz."% (directory,tmp_path+filename))
     #for folder in subfolders:
     #    filename = 'archive-'+name+'-'+folder+'-dofweek-'+ str(d.isoweekday())
     #    filename = filename.replace('.','-',10);
