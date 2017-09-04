@@ -180,7 +180,7 @@ def set_archive(site_obj, paths, restore_point_flag):
     cmds = []
     filename = 'archive-'+name+'-dofweek-'+ str(d.isoweekday())
     create_dir(tmp_path)
-    cmds.append("tar cfJ - %s | split --bytes=510MB - %s.tar.xz."% (directory,tmp_path+filename))
+    cmds.append("tar cfz - %s | split --bytes=510MB - %s.tar.gz."% (directory,tmp_path+filename))
     #for folder in subfolders:
     #    filename = 'archive-'+name+'-'+folder+'-dofweek-'+ str(d.isoweekday())
     #    filename = filename.replace('.','-',10);
@@ -191,8 +191,8 @@ def set_archive(site_obj, paths, restore_point_flag):
     if d.day == 1 or d.day == 15 or restore_point_flag :
         monthly_dir = tmp_path+'month/'
         create_dir(monthly_dir)
-        filename = remote+'/'+'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day) +'-' + str(d.year)+'.tar.xz'
-        cmds.append("tar cfJ %s %s" % (monthly_dir+filename,archive_dir))
+        filename = remote+'/'+'archive-'+name+'-month-'+ str(d.month) + '-'+ str(d.day) +'-' + str(d.year)+'.tar.gz'
+        cmds.append("tar cfz %s %s" % (monthly_dir+filename,archive_dir))
 
     return cmds
 
